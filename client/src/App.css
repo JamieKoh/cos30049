@@ -1,0 +1,117 @@
+.App {
+  width: 100vw;
+  height: 100vh;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+button:hover {
+  cursor: pointer;
+}
+
+/*The main container of all 3 sections of the navbar*/
+
+.Navbar {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  position: relative;
+  background-color: rgb(185, 214, 228);
+}
+
+/*The center container inside the navbar*/
+.Navbar .NavCenter {
+  flex: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.NavCenter input {
+  width: 220px;
+  height: 30px;
+  border: none;
+  border-radius: 4px;
+  font-size: 20px;
+  padding-left: 15px;
+}
+
+.NavCenter button {
+  height: 32px;
+  width: 70px;
+  font-size: 16px;
+}
+
+/*The left and right containers inside the navbar*/
+.Navbar .NavLeft, .NavRight {
+  flex: 25%;
+  display: flex;
+  align-items: center;
+}
+
+    /*When left side menu is closed, dont show the links but keep the button on the left*/
+    .Navbar #leftDefault {
+      justify-content: left;
+    }
+
+    /*When right side menu is closed, dont show the links but keep the button on the right*/
+    .Navbar #rightDefault {
+      justify-content: right;
+    }
+
+    /*To hide the links when menus are closed*/
+    .Navbar #leftDefault a, #rightDefault a {
+      display: none;
+    }
+
+    /*When side menus are open, the hidden links and the button are shown*/
+    .Navbar #leftHidden, #rightHidden {
+      background-color: #5194b3;
+      flex-direction: column;
+      left: 0px;
+      height: 100vh;
+    }
+
+    /*Styles for the links when they ARE shown*/
+    .Navbar #leftHidden a, #rightHidden a {
+      text-decoration: none;
+      color: white;
+      font-size: 25px;
+    }
+
+@media only screen and (max-width: 850px) {
+  .Navbar .NavLeft a {
+    font-size: 20px;
+  }
+}
+
+@media only screen and (max-width: 750px) {
+  .Navbar .NavLeft a {
+    font-size: 15px;
+  }
+}
+
+.HomePageContainer {
+  width: 100vw;
+  
+}
+
+.People {
+  display: flex;
+  padding: 4em;
+  background-color: blue;
+  justify-content: space-between;
+}
+
+.People .person_images {
+  background-color: antiquewhite;
+  width: 30%;
+}
+
+.People .person_images img {
+  width: 100%;
+  border-radius: 50%;
+}
