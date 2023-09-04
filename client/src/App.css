@@ -1,11 +1,13 @@
 .App {
-  width: 100vw;
+  width: 100%;
   height: 100vh;
 }
 
 body {
   margin: 0;
   padding: 0;
+  background-color: hwb(184 93% 1%);
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 button:hover {
@@ -16,7 +18,7 @@ button:hover {
 
 .Navbar {
   width: 100%;
-  height: 80px;
+  height: 10%;
   display: flex;
   position: relative;
   background-color: rgb(185, 214, 228);
@@ -34,7 +36,7 @@ button:hover {
   width: 220px;
   height: 30px;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   font-size: 20px;
   padding-left: 15px;
 }
@@ -43,6 +45,8 @@ button:hover {
   height: 32px;
   width: 70px;
   font-size: 16px;
+  border: none;
+  border-radius: 5px;
 }
 
 /*The left and right containers inside the navbar*/
@@ -71,7 +75,6 @@ button:hover {
     .Navbar #leftHidden, #rightHidden {
       background-color: #5194b3;
       flex-direction: column;
-      left: 0px;
       height: 100vh;
     }
 
@@ -82,6 +85,8 @@ button:hover {
       font-size: 25px;
     }
 
+
+/*To be messed with later when making it responsive*/
 @media only screen and (max-width: 850px) {
   .Navbar .NavLeft a {
     font-size: 20px;
@@ -94,24 +99,71 @@ button:hover {
   }
 }
 
+
+/*Home page styles*/
 .HomePageContainer {
-  width: 100vw;
-  
+  width: 100%;
+  height: 90%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.Welcome {
+  text-align: center;
+}
+
+.Welcome h1 {
+  font-size: 5em;
+}
+
+.Welcome p {
+  font-size: 2em;
 }
 
 .People {
   display: flex;
   padding: 4em;
-  background-color: blue;
   justify-content: space-between;
 }
 
 .People .person_images {
-  background-color: antiquewhite;
   width: 30%;
+}
+
+.People .person_images p{
+  text-align: center;
+  font-size: 2em;
 }
 
 .People .person_images img {
   width: 100%;
   border-radius: 50%;
+}
+
+.assets_list_container{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.assets_list_item {
+  display: flex;
+  flex-direction: row;
+  background-color: #5194b3;
+  width: 70%;
+  margin-bottom: 2%;
+  border-radius: 10px;
+  padding: 2%;
+}
+
+.assets_name, .assets_value {
+  width: 50%;
+}
+
+.assets_value {
+  display: flex;
+  justify-content: right;
 }
