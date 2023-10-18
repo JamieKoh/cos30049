@@ -66,19 +66,149 @@
     </section>
 
 <!-- SCRIPT CODE HERE -->
+<script>
+    var contract;
 
-    <script>
-if (typeof web3 !== 'undefined') {
-    web3 = new Web3(web3.currentProvider);
-} else {
-    // set the provider you want from Web3.providers
-    web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/"));   
-    if(!web3.isConnected())
-        console.log("not connected");
-    else
-        console.log("connected");
+    $(document).ready(function(){
+        web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/"));
+
+        var address = "0xf8e81D47203A594245E36C48e151709F0C19fBe8";
+        var abi = [
+{
+    "inputs": [
+        {
+            "internalType": "string",
+            "name": "_itemName",
+            "type": "string"
+        },
+        {
+            "internalType": "uint256",
+            "name": "_itemPrice",
+            "type": "uint256"
+        }
+    ],
+    "name": "makePurchase",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [
+        {
+            "internalType": "string",
+            "name": "_name",
+            "type": "string"
+        },
+        {
+            "internalType": "string",
+            "name": "_email",
+            "type": "string"
+        }
+    ],
+    "name": "registerUser",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "getUserPurchasedAssets",
+    "outputs": [
+        {
+            "components": [
+                {
+                    "internalType": "string",
+                    "name": "itemName",
+                    "type": "string"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "itemPrice",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "purchasedTime",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "purchaser",
+                    "type": "address"
+                }
+            ],
+            "internalType": "struct TradingSystem.Purchase[]",
+            "name": "",
+            "type": "tuple[]"
+        }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [
+        {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+        }
+    ],
+    "name": "purchases",
+    "outputs": [
+        {
+            "internalType": "string",
+            "name": "itemName",
+            "type": "string"
+        },
+        {
+            "internalType": "uint256",
+            "name": "itemPrice",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "purchasedTime",
+            "type": "uint256"
+        },
+        {
+            "internalType": "address",
+            "name": "purchaser",
+            "type": "address"
+        }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [
+        {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+        }
+    ],
+    "name": "users",
+    "outputs": [
+        {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+        },
+        {
+            "internalType": "string",
+            "name": "email",
+            "type": "string"
+        }
+    ],
+    "stateMutability": "view",
+    "type": "function"
 }
+]
+        contract = new web3.eth.Contract(abi, address);
 
+    })
+</script>
+    <script>
         async function fetchAndDisplayAssets() {
             try {
                 const response = await fetch('/getAssets');
@@ -133,51 +263,50 @@ if (typeof web3 !== 'undefined') {
         }
 
         // Array to store purchased assets
-    const purchasedAssets = [];
+        const purchasedAssets = [];
 
-// Function to handle the "Buy" button click
-function handleBuyButtonClick(asset) {
-    purchasedAssets.push(asset); // Add the asset to the purchased assets array
+        // Function to handle the "Buy" button click
+        function handleBuyButtonClick(asset) {
+            purchasedAssets.push(asset); // Add the asset to the purchased assets array
+           
+            // Display the updated purchased assets
+            const userAssetsSection = document.getElementById('user-assets');
+            userAssetsSection.innerHTML = '<h2>Your Purchased Assets</h2>';
 
-    // Display the updated purchased assets
-    const userAssetsSection = document.getElementById('user-assets');
-    userAssetsSection.innerHTML = '<h2>Your Purchased Assets</h2>';
+            purchasedAssets.forEach((asset, index) => {
+                const assetElement = document.createElement('div');
+                assetElement.className = 'asset';
+                assetElement.textContent = `Item Name: ${asset.itemName} - Price: $${asset.itemPrice}`;
+                userAssetsSection.appendChild(assetElement);
+            });
+        }
 
-    purchasedAssets.forEach((asset, index) => {
-        const assetElement = document.createElement('div');
-        assetElement.className = 'asset';
-        assetElement.textContent = `Item Name: ${asset.itemName} - Price: $${asset.itemPrice}`;
-        userAssetsSection.appendChild(assetElement);
-    });
-}
+        // Add click event listeners to all "Buy" buttons
+        document.addEventListener("DOMContentLoaded", () => {
+            // Add a click event listener to the "Buy" buttons
+            const buyButtons = document.querySelectorAll('.buy-button');
+            buyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Get the asset details from the clicked card
+                    const card = button.closest('.card');
+                    const assetName = card.querySelector('p').textContent;
+                    const assetPrice = card.querySelector('.price').textContent;
 
-// Add click event listeners to all "Buy" buttons
-document.addEventListener("DOMContentLoaded", () => {
-    // Add a click event listener to the "Buy" buttons
-    const buyButtons = document.querySelectorAll('.buy-button');
-    buyButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // Get the asset details from the clicked card
-            const card = button.closest('.card');
-            const assetName = card.querySelector('p').textContent;
-            const assetPrice = card.querySelector('.price').textContent;
-            
-            // Create a new purchased asset card
-            const purchasedAssets = document.getElementById('purchased-assets');
-            const purchasedAssetCard = document.createElement('div');
-            purchasedAssetCard.className = 'card';
-            purchasedAssetCard.innerHTML = `
-                <p>${assetName}</p>
-                <p>${assetPrice}</p>
-            `;
+                    // Create a new purchased asset card
+                    const purchasedAssets = document.getElementById('purchased-assets');
+                    const purchasedAssetCard = document.createElement('div');
+                    purchasedAssetCard.className = 'card';
+                    purchasedAssetCard.innerHTML = `
+                    <p>${assetName}</p>
+                    <p>${assetPrice}</p>
+                    `;
 
-            // Append the new purchased asset card to the "purchased-assets" section
-            purchasedAssets.appendChild(purchasedAssetCard);
+                    // Append the new purchased asset card to the "purchased-assets" section
+                    purchasedAssets.appendChild(purchasedAssetCard);
+                });
+            });
+            handleBuyButtonClick()
         });
-    });
-
-    handleBuyButtonClick()
-});
 
     
         // Function to fetch and display user's purchased assets
@@ -259,147 +388,6 @@ searchAssets(''); // Display all assets initially
         fetchAndDisplayUserAssets();
     </script>
     
-    <script>
-        var contract;
 
-        $(document).ready(function(){
-            web3 = new Web3(web3.currentProvider);
-
-            var address = "0xd9145CCE52D386f254917e481eB44e9943F39138";
-            var abi = [
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_itemName",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_itemPrice",
-				"type": "uint256"
-			}
-		],
-		"name": "makePurchase",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_name",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_email",
-				"type": "string"
-			}
-		],
-		"name": "registerUser",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getUserPurchasedAssets",
-		"outputs": [
-			{
-				"components": [
-					{
-						"internalType": "string",
-						"name": "itemName",
-						"type": "string"
-					},
-					{
-						"internalType": "uint256",
-						"name": "itemPrice",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "purchasedTime",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address",
-						"name": "purchaser",
-						"type": "address"
-					}
-				],
-				"internalType": "struct TradingSystem.Purchase[]",
-				"name": "",
-				"type": "tuple[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "purchases",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "itemName",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "itemPrice",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "purchasedTime",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "purchaser",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "users",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "email",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
-]
-            contract = new web3.eth.Contract(abi, address);
-
-        })
-    </script>
 </body>
 </html>
