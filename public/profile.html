@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <style>
+        /* Add your CSS styling here */
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>User Profile</h1>
+
+    <h2>User Information</h2>
+    <div id="user-info">
+        <!-- User data will be displayed here using JavaScript -->
+    </div>
+
+    <h2>Purchased Assets</h2>
+    <div id="purchased-assets">
+        <!-- Purchased assets will be displayed here using JavaScript -->
+    </div>
+
+    <script>
+        // Example user data (you would fetch this from your server)
+        const userData = {
+            name: 'John Doe',
+            email: 'john@example.com',
+        };
+
+        // Example purchased assets (you would fetch this from your server)
+        const purchasedAssets = [
+            { name: 'Asset 1', price: 100 },
+            { name: 'Asset 2', price: 150 },
+        ];
+
+        // Function to display user data and purchased assets
+        function displayProfileData() {
+            const userInfoContainer = document.getElementById('user-info');
+            const purchasedAssetsContainer = document.getElementById('purchased-assets');
+
+            // Display user data
+            userInfoContainer.innerHTML = `
+                <p><strong>Name:</strong> ${userData.name}</p>
+                <p><strong>Email:</strong> ${userData.email}</p>
+            `;
+
+            // Display purchased assets
+            purchasedAssetsContainer.innerHTML = '<h3>Purchased Assets:</h3>';
+            if (purchasedAssets.length === 0) {
+                purchasedAssetsContainer.innerHTML += '<p>No purchased assets.</p>';
+            } else {
+                purchasedAssets.forEach((asset, index) => {
+                    purchasedAssetsContainer.innerHTML += `
+                        <p><strong>Asset ${index + 1}:</strong> ${asset.name} - Price: $${asset.price}</p>
+                    `;
+                });
+            }
+        }
+
+        // Call the function to display the user's data and purchased assets
+        displayProfileData();
+    </script>
+</body>
+</html>

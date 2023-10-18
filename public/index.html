@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Website for Assignment 2"
+    />
+    <title>Decentralized Trading System</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js" integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- Nav bar list -->
+    <nav>
+        <ul>
+            <li><a href="#assets">Digital Assets</a></li>
+            <li><a href="#user-assets">Purchased Assets</a></li>
+            <li><input type="text" id="search-bar" placeholder="Search for assets"></li>
+            <li><p>Your Balance: $<span id="balance">100.00</span></p></li>
+            <li><a href="/profile">My Profile</a></li>
+        </ul>
+    </nav>
+
+    <header>
+        <h1>Decentralized Trading System</h1>
+    </header>
+
+    <section id="assets">
+        <h2>Digital Assets</h2>
+        <div class="card-container" id="card-container">
+        </div>
+    </section>
+
+    <section id="user-assets">
+        <h2>Your Purchased Assets</h2>
+    </section>
+
+    <section id="registration">
+        <h2>Register</h2>
+        <form id="registration-form">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required><br><br>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required><br><br>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <div id="welcome-message" style="display: none"></div>
+    </section>
+
+    <section id="add-funds">
+        <h2>Add Funds</h2>
+        <form id="add-funds-form">
+            <label for="amount">Amount ($):</label>
+            <input type="number" step="0.01" id="amount" name="amount" required>
+            <button id="add-funds-button" type="submit">Add Funds</button>
+        </form>
+    </section>
+
+<!-- SCRIPT CODE HERE -->
+
+    <script>
+if (typeof web3 !== 'undefined') {
+    web3 = new Web3(web3.currentProvider);
+} else {
+    // set the provider you want from Web3.providers
+    web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/"));   
+    if(!web3.isConnected())
+        console.log("not connected");
+    else
+        console.log("connected");
+}
+
+        async function fetchAndDisplayAssets() {
+            try {
+                const response = await fetch('/getAssets');
+                const data = await response.json();
+                const cardContainer = document.getElementById('card-container');
+                cardContainer.innerHTML = '';        
+                data.forEach((asset, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <p>${asset.name}</p>
+                    <p>Description: ${asset.description}</p>
+                    <p>Category: <span class="category">${asset.category}</span></p>
+                    <p>Price: $${asset.price}</p>
+                    <button class="buy-button">Buy</button>
+                    `;
+                cardContainer.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error fetching asset data:', error);
+            }
+        }
+
+        // Function to make purchases
+        async function makePurchase(itemName, itemPrice) {
+            try {
+                const accounts = await web3.eth.getAccounts();
+                await contract.methods.makePurchase(itemName, itemPrice).send({
+                    from: accounts[0],
+                    value: itemPrice
+                });
+    
+                // Update the user's purchased assets
+                fetchAndDisplayUserAssets();
+            } catch (error) {
+                console.error('Error making a purchase:', error);
+            }
+        }
+    
+        // Function to add funds
+        async function addFunds() {
+            const amount = parseFloat(document.getElementById('amount').value);
+    
+            if (isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid amount to add.');
+                return;
+            }
+            const currentBalance = parseFloat(document.getElementById('balance').textContent);
+            const newBalance = (currentBalance + amount).toFixed(2);
+            document.getElementById('balance').textContent = newBalance;
+            document.getElementById('amount').value = '';
+        }
+
+        // Array to store purchased assets
+    const purchasedAssets = [];
+
+// Function to handle the "Buy" button click
+function handleBuyButtonClick(asset) {
+    purchasedAssets.push(asset); // Add the asset to the purchased assets array
+
+    // Display the updated purchased assets
+    const userAssetsSection = document.getElementById('user-assets');
+    userAssetsSection.innerHTML = '<h2>Your Purchased Assets</h2>';
+
+    purchasedAssets.forEach((asset, index) => {
+        const assetElement = document.createElement('div');
+        assetElement.className = 'asset';
+        assetElement.textContent = `Item Name: ${asset.itemName} - Price: $${asset.itemPrice}`;
+        userAssetsSection.appendChild(assetElement);
+    });
+}
+
+// Add click event listeners to all "Buy" buttons
+document.addEventListener("DOMContentLoaded", () => {
+    // Add a click event listener to the "Buy" buttons
+    const buyButtons = document.querySelectorAll('.buy-button');
+    buyButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Get the asset details from the clicked card
+            const card = button.closest('.card');
+            const assetName = card.querySelector('p').textContent;
+            const assetPrice = card.querySelector('.price').textContent;
+            
+            // Create a new purchased asset card
+            const purchasedAssets = document.getElementById('purchased-assets');
+            const purchasedAssetCard = document.createElement('div');
+            purchasedAssetCard.className = 'card';
+            purchasedAssetCard.innerHTML = `
+                <p>${assetName}</p>
+                <p>${assetPrice}</p>
+            `;
+
+            // Append the new purchased asset card to the "purchased-assets" section
+            purchasedAssets.appendChild(purchasedAssetCard);
+        });
+    });
+
+    handleBuyButtonClick()
+});
+
+    
+        // Function to fetch and display user's purchased assets
+        async function fetchAndDisplayUserAssets() {
+        try {
+            const userAssets = await contract.methods.getUserPurchasedAssets().call();
+
+            const userAssetsSection = document.getElementById('user-assets');
+            userAssetsSection.innerHTML = '<h2>Your Purchased Assets</h2>';
+
+            userAssets.forEach((asset, index) => {
+                const assetElement = document.createElement('div');
+                assetElement.className = 'asset';
+                assetElement.textContent = `Item Name: ${asset.itemName} - Price: $${asset.itemPrice}`;
+                userAssetsSection.appendChild(assetElement);
+            });
+        } catch (error) {
+            console.error('Error fetching user assets:', error);
+        }
+    }
+    
+        // Function to register a user
+        async function registerUser() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+    
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        email: email
+                    })
+                });
+    
+                if (response.ok) {
+                    // Registration successful - hide the form
+                    document.getElementById('registration-form').style.display = 'none';
+    
+                    // Show the welcome message
+                    const welcomeMessage = document.getElementById('welcome-message');
+                    welcomeMessage.style.display = 'block';
+                    welcomeMessage.textContent = `Welcome, ${name}! Registration successful.`;
+                } else {
+                    console.error('Error registering user');
+                }
+            } catch (error) {
+                console.error('Error registering user:', error);
+            }
+        }
+    
+// Function to filter and display assets based on the search input
+function searchAssets() {
+    const searchInput = document.getElementById('search-bar').value.toLowerCase();
+    const cardContainer = document.getElementById('card-container');
+    const cards = cardContainer.querySelectorAll('.card');
+
+    cards.forEach((card) => {
+        const categoryElement = card.querySelector('.category');
+        const category = categoryElement.textContent.toLowerCase();
+
+        if (category.includes(searchInput)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// Add an input event listener to the search bar
+document.getElementById('search-bar').addEventListener('input', searchAssets);
+
+searchAssets(''); // Display all assets initially
+
+        fetchAndDisplayAssets();
+        fetchAndDisplayUserAssets();
+    </script>
+    
+    <script>
+        var contract;
+
+        $(document).ready(function(){
+            web3 = new Web3(web3.currentProvider);
+
+            var address = "0xd9145CCE52D386f254917e481eB44e9943F39138";
+            var abi = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_itemName",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_itemPrice",
+				"type": "uint256"
+			}
+		],
+		"name": "makePurchase",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_email",
+				"type": "string"
+			}
+		],
+		"name": "registerUser",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getUserPurchasedAssets",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "itemName",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "itemPrice",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "purchasedTime",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "purchaser",
+						"type": "address"
+					}
+				],
+				"internalType": "struct TradingSystem.Purchase[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "purchases",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "itemName",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "itemPrice",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "purchasedTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "purchaser",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "users",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "email",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
+            contract = new web3.eth.Contract(abi, address);
+
+        })
+    </script>
+</body>
+</html>
